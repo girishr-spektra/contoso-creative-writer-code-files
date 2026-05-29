@@ -6,6 +6,7 @@ from opentelemetry import trace
 from opentelemetry.trace import set_span_in_context
 from azure.ai.evaluation import RelevanceEvaluator, GroundednessEvaluator, FluencyEvaluator, CoherenceEvaluator
 from azure.ai.evaluation import ViolenceEvaluator, HateUnfairnessEvaluator, SelfHarmEvaluator, SexualEvaluator
+from azure.ai.evaluation import ViolenceMultimodalEvaluator, HateUnfairnessMultimodalEvaluator, SelfHarmMultimodalEvaluator, SexualMultimodalEvaluator, ProtectedMaterialMultimodalEvaluator
 from azure.ai.evaluation import evaluate
 from azure.identity import DefaultAzureCredential
 
@@ -188,6 +189,29 @@ def evaluate_image(image_path):
     if unsafe_content:
         return {"unsafe_content": unsafe_content}
     return {"unsafe_content": None}
+
+
+class ImageEvaluator:
+    def __init__(self, project_scope):
+        self.evaluators = {
+            "violence": ViolenceMultimodalEvaluator(azure_ai_project=project_scope, credential=DefaultAzureCredential()),
+            "hate_unfairness": HateUnfairnessMultimodalEvaluator(azure_ai_project=project_scope, credential=DefaultAzureCredential()),
+            "self_harm": SelfHarmMultimodalEvaluator(azure_ai_project=project_scope, credential=DefaultAzureCredential()),
+            "sexual": SexualMultimodalEvaluator(azure_ai_project=project_scope, credential=DefaultAzureCredential()),
+            "protected_material": ProtectedMaterialMultimodalEvaluator(azure_ai_project=project_scope, credential=DefaultAzureCredential()),
+        }
+        self.project_scope = project_scope
+
+    def __call__(self, *, messages, **kwargs):
+        output = {}
+        data = [{"conversation": msg} for msg in messages]
+        result = evaluate(
+            data=data,
+            evaluators=self.evaluators,
+            azure_ai_project=self.project_scope,
+        )
+        output.update(result)
+        return output
 
 
 def evaluate_article_in_background(research_context, product_context, assignment_context, research, products, article):
