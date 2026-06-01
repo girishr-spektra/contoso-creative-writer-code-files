@@ -6,7 +6,6 @@ from opentelemetry import trace
 from opentelemetry.trace import set_span_in_context
 from azure.ai.evaluation import RelevanceEvaluator, GroundednessEvaluator, FluencyEvaluator, CoherenceEvaluator
 from azure.ai.evaluation import ViolenceEvaluator, HateUnfairnessEvaluator, SelfHarmEvaluator, SexualEvaluator
-from azure.ai.evaluation import ViolenceMultimodalEvaluator, HateUnfairnessMultimodalEvaluator, SelfHarmMultimodalEvaluator, SexualMultimodalEvaluator, ProtectedMaterialMultimodalEvaluator
 from azure.ai.evaluation import evaluate
 from azure.identity import DefaultAzureCredential
 
@@ -193,6 +192,13 @@ def evaluate_image(image_path):
 
 class ImageEvaluator:
     def __init__(self, project_scope):
+        from azure.ai.evaluation import (
+            ViolenceMultimodalEvaluator,
+            HateUnfairnessMultimodalEvaluator,
+            SelfHarmMultimodalEvaluator,
+            SexualMultimodalEvaluator,
+            ProtectedMaterialMultimodalEvaluator,
+        )
         self.evaluators = {
             "violence": ViolenceMultimodalEvaluator(azure_ai_project=project_scope, credential=DefaultAzureCredential()),
             "hate_unfairness": HateUnfairnessMultimodalEvaluator(azure_ai_project=project_scope, credential=DefaultAzureCredential()),
