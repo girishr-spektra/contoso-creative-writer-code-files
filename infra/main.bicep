@@ -82,7 +82,7 @@ param runningOnGh string = ''
 @description('Whether the deployment is running on Azure DevOps Pipeline')
 param runningOnAdo string = ''
 
-var resourceToken = 'UpdatedyourDEploymentID'
+var resourceToken = toLower(uniqueString(subscription().id, environmentName, location))
 var tags = { 'azd-env-name': environmentName }
 
 //resource resourceGroup 'Microsoft.Resources/resourceGroups@2021-04-01' = {
